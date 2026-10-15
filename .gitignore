@@ -1,0 +1,8 @@
+# Local credentials — never commit these
+firmware/secrets.h
+
+# Arduino / PlatformIO build output
+firmware/build/
+.pio/
+.vscode/
+.DS_Store
