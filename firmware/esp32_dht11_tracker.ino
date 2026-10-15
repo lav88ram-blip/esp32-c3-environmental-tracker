@@ -26,9 +26,9 @@ bool hasReading = false;
 
 void sendReading(uint8_t clientId) {
   if (!hasReading) return;
-  String json = "{\\"temperature\\":" + String(latestTemperature, 1)
-    + ",\\"humidity\\":" + String(latestHumidity, 1)
-    + ",\\"timestamp\\":" + String((uint64_t)millis()) + "}";
+  String json = "{\"temperature\":" + String(latestTemperature, 1)
+    + ",\"humidity\":" + String(latestHumidity, 1)
+    + ",\"timestamp\":" + String((uint64_t)millis()) + "}";
   webSocket.sendTXT(clientId, json);
 }
 void onWebSocketEvent(uint8_t clientId, WStype_t type, uint8_t * payload, size_t length) {
@@ -98,9 +98,9 @@ void loop() {
       Serial.println("DHT11 read failed; check wiring and GPIO 4.");
     } else {
       latestHumidity = humidity; latestTemperature = temperature; hasReading = true;
-      String json = "{\\"temperature\\":" + String(temperature, 1)
-        + ",\\"humidity\\":" + String(humidity, 1)
-        + ",\\"timestamp\\":" + String((uint64_t)millis()) + "}";
+      String json = "{\"temperature\":" + String(temperature, 1)
+        + ",\"humidity\":" + String(humidity, 1)
+        + ",\"timestamp\":" + String((uint64_t)millis()) + "}";
       webSocket.broadcastTXT(json);
       Serial.println(json);
     }
