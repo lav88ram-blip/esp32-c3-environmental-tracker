@@ -17,13 +17,12 @@ ESP32-C3 Super Mini             DHT11 module
 └─────────────────┘             └────────────┘
 ```
 
-**Important:** Check the labels printed on your particular module. A bare four-pin DHT11 sensor has a different pin order from many three-pin breakout modules; do not assume the module layout applies to the bare sensor. With a bare sensor, looking at the front grille, the common pin order is VCC, DATA, NC, GND, but confirm its datasheet. Some bare sensors need a pull-up resistor (typically 4.7–10 kΩ) between DATA and 3V3; many breakout modules already include one.
+**Check the labels printed on your exact module.** A bare four-pin DHT11 has a different layout from many three-pin breakout modules. For a common bare sensor viewed from the front grille, the pins are VCC, DATA, NC, GND; verify the datasheet for your part. Bare sensors may need a 4.7–10 kΩ pull-up resistor between DATA and 3V3; many breakout boards already include one.
 
-Power the sensor from **3.3 V** to keep its data signal safe for the ESP32-C3. GPIO 4 is used in the sample firmware and can be changed in the sketch if needed.
+Power the sensor from **3.3 V** so the data signal is safe for the ESP32-C3. The example firmware uses GPIO 4.
 
-## Data fields
+## WebSocket data
 
-- ThingSpeak Field 1: temperature in degrees Celsius
-- ThingSpeak Field 2: relative humidity in percent
+The ESP32 hosts the dashboard over HTTP port 80 and streams JSON sensor readings over WebSocket port 81 on the local network. The browser connects to `ws://<ESP32-IP>:81/`. GitHub Pages can store the source files but cannot host the device's WebSocket server; use the dashboard served by the ESP32 for this direct connection.
 
-The DHT11 is a low-cost, relatively low-precision sensor. Avoid placing it in direct sunlight, near a heat source, or where condensation can form.
+The DHT11 is a low-cost, low-precision sensor. Avoid direct sunlight, nearby heat sources, and condensation.
