@@ -1,56 +1,23 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101827">
-  <meta name="description" content="Live temperature and humidity from an ESP32-C3 Super Mini and DHT11 sensor.">
+  <meta name="description" content="Direct WebSocket temperature and humidity dashboard for an ESP32-C3 and DHT11.">
   <title>Airscope — Environmental Tracker</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css"><script src="script.js" defer></script>
 </head>
-<body>
-  <div class="shell">
-    <header class="topbar">
-      <a class="brand" href="./" aria-label="Airscope home"><span class="brand-mark">A</span><span>AIRSCOPE<span class="brand-sub">ENVIRONMENTAL MONITOR</span></span></a>
-      <div class="status"><span class="status-dot" id="statusDot"></span><span id="connectionStatus">Demo mode</span></div>
-    </header>
-    <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">ESP32-C3 SUPER MINI · DHT11</p>
-          <h1>Your environment,<br><span>at a glance.</span></h1>
-          <p class="hero-copy">A simple live view of the temperature and relative humidity around your sensor.</p>
-        </div>
-        <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="core"><span>°</span></div><span class="art-label">SENSOR / 01</span></div>
-      </section>
-
-      <section class="metrics" aria-label="Latest readings">
-        <article class="metric-card temperature">
-          <div class="metric-head"><span class="metric-icon">↗</span><span class="metric-label">AIR TEMPERATURE</span><span class="pill">FIELD 1</span></div>
-          <div class="metric-value"><span id="temperature">--.-</span><span class="unit">°C</span></div>
-          <div class="metric-foot"><span id="fahrenheit">--.- °F</span><span class="metric-note">DHT11 sensor</span></div>
-        </article>
-        <article class="metric-card humidity">
-          <div class="metric-head"><span class="metric-icon">≈</span><span class="metric-label">RELATIVE HUMIDITY</span><span class="pill">FIELD 2</span></div>
-          <div class="metric-value"><span id="humidity">--</span><span class="unit">%</span></div>
-          <div class="humidity-track"><span id="humidityBar"></span></div>
-          <div class="metric-foot"><span>Moisture in the air</span><span class="metric-note" id="humidityLabel">Waiting for data</span></div>
-        </article>
-      </section>
-
-      <section class="panel chart-panel">
-        <div class="section-heading"><div><p class="eyebrow">RECENT HISTORY</p><h2>Sensor activity</h2></div><div class="legend"><span><i class="legend-temp"></i>Temperature</span><span><i class="legend-hum"></i>Humidity</span></div></div>
-        <div class="chart-wrap"><canvas id="historyChart" aria-label="Recent temperature and humidity history" role="img"></canvas><div class="chart-empty" id="chartEmpty">Your readings will appear here once the device uploads data.</div></div>
-        <div class="chart-footer"><span id="readingCount">0 readings loaded</span><span id="lastUpdated">No update yet</span></div>
-      </section>
-
-      <section class="bottom-grid">
-        <article class="panel info-panel"><p class="eyebrow">DEVICE STATUS</p><h2>Connected hardware</h2><div class="device-row"><span class="device-icon">⌁</span><div><strong>ESP32-C3 Super Mini</strong><span>Wi-Fi microcontroller</span></div><span class="device-state" id="deviceState">Demo</span></div><div class="device-row"><span class="device-icon">◉</span><div><strong>DHT11</strong><span>Temperature + humidity</span></div><span class="device-state">GPIO 4</span></div></article>
-        <article class="panel setup-panel"><p class="eyebrow">GETTING STARTED</p><h2>Bring your data online</h2><p>Make a free ThingSpeak channel with temperature in Field 1 and humidity in Field 2, then add its channel ID below.</p><label for="channelInput">ThingSpeak Channel ID</label><div class="config-row"><input id="channelInput" inputmode="numeric" placeholder="e.g. 1234567" autocomplete="off"><button id="saveChannel" type="button">Connect</button></div><p class="small-note">Use a public channel for this no-key dashboard. Your Wi-Fi password and write API key should never go in this website.</p><a href="https://thingspeak.com/" target="_blank" rel="noreferrer">Open ThingSpeak ↗</a></article>
-      </section>
-      <footer><span>AIRSCOPE <span class="footer-muted">· DIY ENVIRONMENTAL TRACKER</span></span><span>Refreshes every 30 seconds · <span id="clock">--:--</span></span></footer>
-    </main>
-  </div>
-</body>
-</html>
+<body><div class="shell">
+<header class="topbar"><a class="brand" href="./"><span class="brand-mark">A</span><span>AIRSCOPE<span class="brand-sub">ENVIRONMENTAL MONITOR</span></span></a><div class="status"><span class="status-dot" id="statusDot"></span><span id="connectionStatus">Connecting by WebSocket…</span></div></header>
+<main>
+<section class="hero"><div><p class="eyebrow">ESP32-C3 SUPER MINI · DHT11 · WEBSOCKET</p><h1>Your environment,<br><span>at a glance.</span></h1><p class="hero-copy">Live readings streamed directly from your ESP32. No ThingSpeak, cloud data service, or polling API.</p></div><div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="core"><span>°</span></div><span class="art-label">DIRECT / 01</span></div></section>
+<section class="metrics" aria-label="Latest readings">
+<article class="metric-card temperature"><div class="metric-head"><span class="metric-icon">↗</span><span class="metric-label">AIR TEMPERATURE</span><span class="pill">DHT11</span></div><div class="metric-value"><span id="temperature">--.-</span><span class="unit">°C</span></div><div class="metric-foot"><span id="fahrenheit">--.- °F</span><span class="metric-note">Live sensor value</span></div></article>
+<article class="metric-card humidity"><div class="metric-head"><span class="metric-icon">≈</span><span class="metric-label">RELATIVE HUMIDITY</span><span class="pill">DHT11</span></div><div class="metric-value"><span id="humidity">--</span><span class="unit">%</span></div><div class="humidity-track"><span id="humidityBar"></span></div><div class="metric-foot"><span>Moisture in the air</span><span class="metric-note" id="humidityLabel">Waiting for data</span></div></article>
+</section>
+<section class="panel chart-panel"><div class="section-heading"><div><p class="eyebrow">RECENT HISTORY</p><h2>Sensor activity</h2></div><div class="legend"><span><i class="legend-temp"></i>Temperature</span><span><i class="legend-hum"></i>Humidity</span></div></div><div class="chart-wrap"><canvas id="historyChart" aria-label="Recent temperature and humidity history" role="img"></canvas><div class="chart-empty" id="chartEmpty">Connect to the ESP32 Wi-Fi network to stream readings.</div></div><div class="chart-footer"><span id="readingCount">0 readings received</span><span id="lastUpdated">No update yet</span></div></section>
+<section class="bottom-grid">
+<article class="panel info-panel"><p class="eyebrow">DEVICE STATUS</p><h2>Connected hardware</h2><div class="device-row"><span class="device-icon">⌁</span><div><strong>ESP32-C3 Super Mini</strong><span>Local Wi-Fi + WebSocket server</span></div><span class="device-state" id="deviceState">Offline</span></div><div class="device-row"><span class="device-icon">◉</span><div><strong>DHT11</strong><span>Temperature + humidity · GPIO 4</span></div><span class="device-state">Sensor</span></div></article>
+<article class="panel setup-panel"><p class="eyebrow">DIRECT CONNECTION</p><h2>WebSocket status</h2><p id="connectionDetail">This dashboard connects to the WebSocket server on the ESP32 at port 81. Open this page from the ESP32 itself for a direct connection.</p><div class="connection-box"><span class="connection-indicator" id="connectionIndicator"></span><span id="socketAddress">Waiting for device address…</span></div><p class="small-note">GitHub stores the source code, but GitHub Pages cannot host the ESP32 WebSocket server. Use the dashboard served by the ESP32, or use a secure WebSocket relay if you need remote access.</p><a href="https://github.com/lav88ram-blip/esp32-c3-environmental-tracker" target="_blank" rel="noreferrer">View source on GitHub ↗</a></article>
+</section><footer><span>AIRSCOPE <span class="footer-muted">· DIRECT WEBSOCKET TRACKER</span></span><span>Streaming sensor values · <span id="clock">--:--</span></span></footer>
+</main></div></body></html>
