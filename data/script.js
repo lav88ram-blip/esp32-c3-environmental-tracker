@@ -23,7 +23,7 @@ function connectSocket() {
     try {
       const d = JSON.parse(event.data);
       if (typeof d.temperature !== "number" || typeof d.humidity !== "number") return;
-      updateReading(d.temperature, d.humidity, d.timestamp || Date.now());
+      updateReading(d.temperature, d.humidity, Date.now());
     } catch (_) { /* Ignore malformed messages. */ }
   };
   socket.onerror = () => setStatus(false, "WebSocket connection error");
