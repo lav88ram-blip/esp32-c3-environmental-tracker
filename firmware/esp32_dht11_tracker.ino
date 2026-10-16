@@ -1,7 +1,7 @@
 /*
-  Airscope | ESP32-C3 Super Mini + DHT11 | AP-hosted dashboard + WebSocket
+  Airscope | ESP32-C3 Super Mini + DHT11 | Local Wi-Fi dashboard + WebSocket
   Wiring: DHT11 VCC -> 3V3, DATA -> GPIO 3, GND -> GND.
-  The ESP32 always creates its own Wi-Fi access point; no router credentials needed.
+  The ESP32 joins your existing 2.4 GHz Wi-Fi network. Edit WIFI_SSID and WIFI_PASSWORD below before uploading.
   Required libraries: DHT sensor library by Adafruit, Adafruit Unified Sensor,
   and WebSockets by Markus Sattler (Links2004).
   Upload the dashboard files in the data/ folder to ESP32 LittleFS.
@@ -15,8 +15,8 @@
 #define DHT_PIN 3
 #define DHT_TYPE DHT11
 const unsigned long SAMPLE_INTERVAL_MS = 2500;
-const char *AP_SSID = "AirScope-ESP32";
-const char *AP_PASSWORD = "airscope123";
+const char *WIFI_SSID = "YOUR_WIFI_NAME";
+const char *WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 DHT dht(DHT_PIN, DHT_TYPE);
 WebServer httpServer(80);
@@ -68,17 +68,26 @@ void setupHttp() {
   httpServer.begin();
 }
 
-void startAccessPoint() {
-  WiFi.mode(WIFI_AP);  // AP-only: never join a router or home Wi-Fi.
-  if (!WiFi.softAP(AP_SSID, AP_PASSWORD)) {
-    Serial.println("ERROR: Could not start Wi-Fi access point.");
-    return;
+void connectToWiFi() {
+  WiFi.mode(WIFI_STA);  // Join your existing local Wi-Fi network.
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.printf("Connecting to Wi-Fi: %s\\n", WIFI_SSID);
+
+  unsigned long startAttempt = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < 20000) {
+    delay(500);
+    Serial.print(".");
   }
-  Serial.println("Access point started.");
-  Serial.printf("Wi-Fi network: %s\n", AP_SSID);
-  Serial.printf("Wi-Fi password: %s\n", AP_PASSWORD);
-  Serial.print("Dashboard: http://");
-  Serial.println(WiFi.softAPIP());
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Wi-Fi connected.");
+    Serial.print("Dashboard: http://");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("ERROR: Wi-Fi connection failed. Check WIFI_SSID/WIFI_PASSWORD and reset the board.");
+  }
 }
 
 void setup() {
@@ -90,7 +99,7 @@ void setup() {
     Serial.println("LittleFS mount failed. Upload dashboard files to the device.");
   }
 
-  startAccessPoint();
+  connectToWiFi();
   setupHttp();
   webSocket.begin();
   webSocket.onEvent(onWebSocketEvent);
@@ -99,6 +108,15 @@ void setup() {
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    static unsigned long lastReconnectAttempt = 0;
+    if (millis() - lastReconnectAttempt >= 10000) {
+      lastReconnectAttempt = millis();
+      Serial.println("Wi-Fi disconnected; retrying...");
+      WiFi.disconnect();
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    }
+  }
   httpServer.handleClient();
   webSocket.loop();
 
