@@ -26,7 +26,7 @@ For a typical three-pin breakout: VCC → 3V3, DATA → GPIO 3, GND → GND. Che
 1. Install ESP32 board support by Espressif.
 2. Install **DHT sensor library by Adafruit**, **Adafruit Unified Sensor**, and **WebSockets by Markus Sattler (Links2004)** from Library Manager.
 3. Open `firmware/esp32_dht11_tracker.ino`, select your ESP32-C3 board and serial port, then upload the sketch. A separate `secrets.h` is optional: without it, the device starts its own setup Wi-Fi network. To join your home Wi-Fi instead, copy `firmware/secrets.example.h` to `firmware/secrets.h` locally and enter your credentials. Never commit real credentials.
-5. Upload the `data/` directory to the ESP32 LittleFS filesystem using a LittleFS filesystem uploader compatible with your Arduino-ESP32 board package. The device must contain `/index.html`, `/style.css`, and `/script.js`.
+4. Upload the `data/` directory to the ESP32 LittleFS filesystem using a LittleFS filesystem uploader compatible with your Arduino-ESP32 board package. The device must contain `/index.html`, `/style.css`, and `/script.js`.
 
 ## 3. Connect to the dashboard
 
