@@ -1,20 +1,20 @@
 # Airscope — ESP32-C3 WebSocket Environmental Tracker
 
-A DHT11 dashboard that streams readings **directly over WebSockets from the ESP32-C3**. No ThingSpeak, MQTT, cloud API, or polling service is used.
+A DHT11 dashboard that streams readings **directly over WebSockets from the ESP32-C3**. The ESP32 creates its own Wi-Fi network and hosts the website. No home router, internet connection, cloud API, MQTT, or polling service is needed.
 
-## Architecture (important)
+## Architecture
 
-- The ESP32 runs an HTTP server on port 80 to serve the dashboard files and a WebSocket server on port 81 to stream JSON readings.
-- The browser connects to `ws://<ESP32-IP>:81/`; new readings are pushed from the device.
-- GitHub is the source-code repository. **GitHub Pages cannot run your ESP32 WebSocket server.** For the direct WebSocket version, open the dashboard at the ESP32's local IP address. The GitHub Pages URL cannot connect to the device's plain `ws://` endpoint from an HTTPS page because browsers block insecure mixed content.
-- This setup works on the same local Wi-Fi network. Remote access requires a separately hosted **secure WebSocket (WSS) relay** or carefully configured VPN/reverse proxy; don't expose the device's ports directly to the internet.
+- The ESP32 always runs in **Wi-Fi access-point-only mode**. It does not try to connect to a home router.
+- Join the ESP32 network: **SSID `AirScope-ESP32`**, password **`airscope123`**.
+- Open the dashboard at **http://192.168.4.1/**. The ESP32 serves the site from its LittleFS filesystem over HTTP port 80.
+- The dashboard opens a direct WebSocket to **`ws://192.168.4.1:81/`**. The ESP32 pushes fresh DHT11 JSON readings about every 2.5 seconds.
+- GitHub stores the source code; GitHub Pages is not used to serve this direct-device dashboard. Open the local IP above while connected to the ESP32 Wi-Fi network.
 
 ## Files
 
 - `index.html`, `style.css`, `script.js`: dashboard source
 - `data/`: copies served from the ESP32 LittleFS filesystem
-- `firmware/esp32_dht11_tracker.ino`: HTTP + WebSocket server and DHT11 firmware
-- `firmware/secrets.example.h`: safe Wi-Fi configuration template
+- `firmware/esp32_dht11_tracker.ino`: AP-only HTTP + WebSocket server and DHT11 firmware
 - `docs/wiring.md`: sensor wiring
 
 ## 1. Wire the DHT11
@@ -25,20 +25,18 @@ For a typical three-pin breakout: VCC → 3V3, DATA → GPIO 3, GND → GND. Che
 
 1. Install ESP32 board support by Espressif.
 2. Install **DHT sensor library by Adafruit**, **Adafruit Unified Sensor**, and **WebSockets by Markus Sattler (Links2004)** from Library Manager.
-3. Open `firmware/esp32_dht11_tracker.ino`, select your ESP32-C3 board and serial port, then upload the sketch. A separate `secrets.h` is optional: without it, the device starts its own setup Wi-Fi network. To join your home Wi-Fi instead, copy `firmware/secrets.example.h` to `firmware/secrets.h` locally and enter your credentials. Never commit real credentials.
+3. Open `firmware/esp32_dht11_tracker.ino`, select your ESP32-C3 board and serial port, then upload the sketch. **No `secrets.h` or Wi-Fi credentials are needed**; the device always creates its own Wi-Fi network.
 4. Upload the `data/` directory to the ESP32 LittleFS filesystem using a LittleFS filesystem uploader compatible with your Arduino-ESP32 board package. The device must contain `/index.html`, `/style.css`, and `/script.js`.
 
 ## 3. Connect to the dashboard
 
-- Open Serial Monitor at **115200 baud**.
-- If station Wi-Fi connects, note the printed dashboard address, such as `http://192.168.1.123/`.
-- Open that address in a browser on the same Wi-Fi network. The dashboard connects to the WebSocket at port 81 automatically.
-- If no Wi-Fi credentials are configured, or the configured network cannot be reached, the ESP32 creates a setup access point named `AirScope-ESP32` with password `airscope123`. Join it and open `http://192.168.4.1/`. This fallback is for direct local dashboard access; it does not configure home Wi-Fi. Change the fallback password before using this outside a trusted environment.
-- Readings are sent immediately to connected clients whenever the sensor is sampled. The page reconnects automatically if the WebSocket drops.
+1. Open Serial Monitor at **115200 baud** and reset the board. It should print the access-point name and dashboard IP.
+2. On your phone or computer, connect to Wi-Fi **`AirScope-ESP32`** using password **`airscope123`**.
+3. If your phone reports “no internet,” choose to stay connected to this network. Internet is not required for the local dashboard.
+4. Open **http://192.168.4.1/** in your browser. The page connects to the WebSocket at port 81 automatically and reconnects if the connection drops.
 
 ## Security notes
 
-- Do not commit Wi-Fi credentials.
-- The fallback access-point password is a simple setup default; change it to a strong unique password before use.
-- The local dashboard uses HTTP and plain WebSocket on the LAN. Do not port-forward these ports to the public internet.
+- The access-point password shown here is a simple setup default. Change `AP_PASSWORD` in the firmware to a strong unique password before sharing or deploying the device.
+- The dashboard uses local HTTP and plain WebSocket. Do not expose the device's ports directly to the public internet.
 - The DHT11 is an approximate hobby sensor, not a safety-critical instrument.
