@@ -19,14 +19,13 @@ A DHT11 dashboard that streams readings **directly over WebSockets from the ESP3
 
 ## 1. Wire the DHT11
 
-For a typical three-pin breakout: VCC → 3V3, DATA → GPIO 4, GND → GND. Check the labels on your module. See [docs/wiring.md](docs/wiring.md).
+For a typical three-pin breakout: VCC → 3V3, DATA → GPIO 3, GND → GND. Check the labels on your module. See [docs/wiring.md](docs/wiring.md).
 
 ## 2. Configure Arduino IDE
 
 1. Install ESP32 board support by Espressif.
 2. Install **DHT sensor library by Adafruit**, **Adafruit Unified Sensor**, and **WebSockets by Markus Sattler (Links2004)** from Library Manager.
-3. Copy `firmware/secrets.example.h` to `firmware/secrets.h`; set your Wi-Fi name and password. This real secrets file is ignored by Git.
-4. Open `firmware/esp32_dht11_tracker.ino`, select your ESP32-C3 board and serial port, then upload the sketch.
+3. Open `firmware/esp32_dht11_tracker.ino`, select your ESP32-C3 board and serial port, then upload the sketch. A separate `secrets.h` is optional: without it, the device starts its own setup Wi-Fi network. To join your home Wi-Fi instead, copy `firmware/secrets.example.h` to `firmware/secrets.h` locally and enter your credentials. Never commit real credentials.
 5. Upload the `data/` directory to the ESP32 LittleFS filesystem using a LittleFS filesystem uploader compatible with your Arduino-ESP32 board package. The device must contain `/index.html`, `/style.css`, and `/script.js`.
 
 ## 3. Connect to the dashboard
@@ -34,7 +33,7 @@ For a typical three-pin breakout: VCC → 3V3, DATA → GPIO 4, GND → GND. Che
 - Open Serial Monitor at **115200 baud**.
 - If station Wi-Fi connects, note the printed dashboard address, such as `http://192.168.1.123/`.
 - Open that address in a browser on the same Wi-Fi network. The dashboard connects to the WebSocket at port 81 automatically.
-- If the configured Wi-Fi connection fails, the ESP32 creates a setup access point named `AirScope-ESP32` with password `airscope123`. Join it and open `http://192.168.4.1/`. Change the fallback password in the firmware before using this outside a trusted environment.
+- If no Wi-Fi credentials are configured, or the configured network cannot be reached, the ESP32 creates a setup access point named `AirScope-ESP32` with password `airscope123`. Join it and open `http://192.168.4.1/`. This fallback is for direct local dashboard access; it does not configure home Wi-Fi. Change the fallback password before using this outside a trusted environment.
 - Readings are sent immediately to connected clients whenever the sensor is sampled. The page reconnects automatically if the WebSocket drops.
 
 ## Security notes
