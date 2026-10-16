@@ -33,7 +33,10 @@ String readingJson() {
 }
 
 void sendReading(uint8_t clientId) {
-  if (hasReading) webSocket.sendTXT(clientId, readingJson());
+  if (hasReading) {
+    String payload = readingJson();
+    webSocket.sendTXT(clientId, payload);
+  }
 }
 
 void onWebSocketEvent(uint8_t clientId, WStype_t type, uint8_t * payload, size_t length) {
