@@ -1,7 +1,7 @@
 /*
   Airscope | ESP32-C3 Super Mini + DHT11 | WebSocket-only
-  Wiring: DHT11 VCC -> 3V3, DATA -> GPIO 4, GND -> GND.
-  Copy secrets.example.h to secrets.h and enter your Wi-Fi credentials.
+  Wiring: DHT11 VCC -> 3V3, DATA -> GPIO 3, GND -> GND.
+  Wi-Fi credentials in secrets.h are optional; without them, the device starts its setup AP.
   Required libraries: DHT sensor library by Adafruit, Adafruit Unified Sensor,
   and WebSockets by Markus Sattler (Links2004).
   Upload the dashboard files in the data/ folder to ESP32 LittleFS.
@@ -11,9 +11,15 @@
 #include <WebSocketsServer.h>
 #include <LittleFS.h>
 #include <DHT.h>
-#include "secrets.h"
+// A local secrets.h is optional. Never commit real Wi-Fi credentials.
+#if __has_include("secrets.h")
+  #include "secrets.h"
+#else
+  #define WIFI_SSID ""
+  #define WIFI_PASSWORD ""
+#endif
 
-#define DHT_PIN 4
+#define DHT_PIN 3
 #define DHT_TYPE DHT11
 const unsigned long SAMPLE_INTERVAL_MS = 2500;
 DHT dht(DHT_PIN, DHT_TYPE);
@@ -54,7 +60,28 @@ void setupHttp() {
   httpServer.onNotFound([](){ httpServer.send(404, "text/plain", "Not found"); });
   httpServer.begin();
 }
+void startAccessPoint() {
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP("AirScope-ESP32", "airscope123");
+  Serial.println("Setup access point started.");
+  Serial.println("Connect to Wi-Fi AirScope-ESP32 (password: airscope123).");
+  Serial.print("Dashboard: http://");
+  Serial.println(WiFi.softAPIP());
+}
+
 void connectWiFi() {
+  // A missing or untouched example secrets.h should not prevent compilation.
+  String ssid = String(WIFI_SSID);
+  String password = String(WIFI_PASSWORD);
+  bool credentialsConfigured = ssid.length() > 0 && password.length() > 0
+    && ssid != "YOUR_WIFI_NAME" && password != "YOUR_WIFI_PASSWORD";
+
+  if (!credentialsConfigured) {
+    Serial.println("No Wi-Fi credentials configured; starting setup access point.");
+    startAccessPoint();
+    return;
+  }
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
@@ -66,12 +93,8 @@ void connectWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.print("Dashboard: http://"); Serial.println(WiFi.localIP());
   } else {
-    // Fallback AP lets you connect directly if the configured Wi-Fi is unavailable.
     Serial.println("Station Wi-Fi failed; starting setup access point.");
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP("AirScope-ESP32", "airscope123");
-    Serial.print("Connect to Wi-Fi AirScope-ESP32, then open http://");
-    Serial.println(WiFi.softAPIP());
+    startAccessPoint();
   }
 }
 void setup() {
@@ -95,7 +118,7 @@ void loop() {
     float humidity = dht.readHumidity();
     float temperature = dht.readTemperature();
     if (isnan(humidity) || isnan(temperature)) {
-      Serial.println("DHT11 read failed; check wiring and GPIO 4.");
+      Serial.println("DHT11 read failed; check wiring and GPIO 3.");
     } else {
       latestHumidity = humidity; latestTemperature = temperature; hasReading = true;
       String json = "{\"temperature\":" + String(temperature, 1)
