@@ -26,21 +26,23 @@ float latestTemperature = NAN;
 float latestHumidity = NAN;
 bool hasReading = false;
 
+String readingJson() {
+  return "{\"temperature\":" + String(latestTemperature, 1)
+    + ",\"humidity\":" + String(latestHumidity, 1)
+    + ",\"timestamp\":" + String((uint64_t)millis()) + "}";
+}
+
 void sendReading(uint8_t clientId) {
-  if (!hasReading) return;
-  String json = "{\\"temperature\\":" + String(latestTemperature, 1)
-    + ",\\"humidity\\":" + String(latestHumidity, 1)
-    + ",\\"timestamp\\":" + String((uint64_t)millis()) + "}";
-  webSocket.sendTXT(clientId, json);
+  if (hasReading) webSocket.sendTXT(clientId, readingJson());
 }
 
 void onWebSocketEvent(uint8_t clientId, WStype_t type, uint8_t * payload, size_t length) {
   (void)payload; (void)length;
   if (type == WStype_CONNECTED) {
-    Serial.printf("WebSocket client %u connected.\\n", clientId);
+    Serial.printf("WebSocket client %u connected.\n", clientId);
     sendReading(clientId);
   } else if (type == WStype_DISCONNECTED) {
-    Serial.printf("WebSocket client %u disconnected.\\n", clientId);
+    Serial.printf("WebSocket client %u disconnected.\n", clientId);
   }
 }
 
@@ -70,8 +72,8 @@ void startAccessPoint() {
     return;
   }
   Serial.println("Access point started.");
-  Serial.printf("Wi-Fi network: %s\\n", AP_SSID);
-  Serial.printf("Wi-Fi password: %s\\n", AP_PASSWORD);
+  Serial.printf("Wi-Fi network: %s\n", AP_SSID);
+  Serial.printf("Wi-Fi password: %s\n", AP_PASSWORD);
   Serial.print("Dashboard: http://");
   Serial.println(WiFi.softAPIP());
 }
@@ -107,9 +109,7 @@ void loop() {
       latestHumidity = humidity;
       latestTemperature = temperature;
       hasReading = true;
-      String json = "{\\"temperature\\":" + String(temperature, 1)
-        + ",\\"humidity\\":" + String(humidity, 1)
-        + ",\\"timestamp\\":" + String((uint64_t)millis()) + "}";
+      String json = readingJson();
       webSocket.broadcastTXT(json);
       Serial.println(json);
     }
