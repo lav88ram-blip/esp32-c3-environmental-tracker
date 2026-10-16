@@ -5,21 +5,21 @@
 | DHT11 module pin | ESP32-C3 Super Mini |
 |---|---|
 | VCC / + | 3V3 |
-| DATA / OUT / S | GPIO 4 |
+| DATA / OUT / S | GPIO 3 |
 | GND / - | GND |
 
 ```text
 ESP32-C3 Super Mini             DHT11 module
 ┌─────────────────┐             ┌────────────┐
 │ 3V3 ──────────────────────────│ VCC / +   │
-│ GPIO 4 ───────────────────────│ DATA / OUT│
+│ GPIO 3 ───────────────────────│ DATA / OUT│
 │ GND ──────────────────────────│ GND / -   │
 └─────────────────┘             └────────────┘
 ```
 
 **Check the labels printed on your exact module.** A bare four-pin DHT11 has a different layout from many three-pin breakout modules. For a common bare sensor viewed from the front grille, the pins are VCC, DATA, NC, GND; verify the datasheet for your part. Bare sensors may need a 4.7–10 kΩ pull-up resistor between DATA and 3V3; many breakout boards already include one.
 
-Power the sensor from **3.3 V** so the data signal is safe for the ESP32-C3. The example firmware uses GPIO 4.
+Power the sensor from **3.3 V** so the data signal is safe for the ESP32-C3. The example firmware uses GPIO 3.
 
 ## WebSocket data
 
